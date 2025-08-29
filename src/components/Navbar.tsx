@@ -1,9 +1,12 @@
+import { BsBadge3D, BsBadge3dFill } from "react-icons/bs";
 import { BoxIcon, MenuIcon, SettingsIcon, SunIcon } from "../assets/icons/Icons";
 import { useUIStore } from "../store/uiStore";
+import { useViewModeStore } from "../store/viewModeStore";
 
 const Navbar = ()=>{
 
     const toggleSidebar = useUIStore((state) => state.toggleSidebar);
+    const { mode, toggleMode } = useViewModeStore();
 
     return(
         <nav className="flex items-center justify-between p-4 bg-gray-800 shadow-lg relative z-30">
@@ -25,6 +28,10 @@ const Navbar = ()=>{
                   </button>
                   <button className="p-2 rounded-lg hover:bg-slate-700 transition-colors duration-200">
                     <SettingsIcon />
+                  </button>
+                   <button className="p-2 rounded-lg hover:bg-slate-700 transition-colors duration-200"
+                   onClick={toggleMode}>
+                    {mode === "3d" ? <BsBadge3D size={30} /> : <BsBadge3dFill size={30} />}
                   </button>
                 </div>
               </nav>
