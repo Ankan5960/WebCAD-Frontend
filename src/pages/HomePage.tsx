@@ -5,49 +5,26 @@ import { useState } from "react";
 import {
   BoxIcon,
   CompassIcon,
-  GridIcon,
-  MenuIcon,
-  SettingsIcon,
-  SunIcon,
+  GridIcon
 } from "../assets/icons/Icons";
+import Navbar from "../components/Navbar";
+import { useUIStore } from "../store/uiStore";
 
 const HomePage = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [cameraRotation, setCameraRotation] = useState(0);
+  const { isSidebarOpen } = useUIStore();
 
   return (
     <div className="flex flex-col h-screen font-sans bg-gray-900 text-slate-200 overflow-hidden">
       {/* Navbar */}
-      <nav className="flex items-center justify-between p-4 bg-gray-800 shadow-lg relative z-20">
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-lg hover:bg-slate-700 transition-colors duration-200"
-          >
-            <MenuIcon />
-          </button>
-          <div className="flex items-center space-x-2">
-            <BoxIcon className="w-8 h-8 text-blue-500" />
-            <h1 className="text-xl font-bold text-white">WebCAD</h1>
-          </div>
-        </div>
-        <div className="flex items-center space-x-4">
-          <button className="p-2 rounded-lg hover:bg-slate-700 transition-colors duration-200">
-            <SunIcon />
-          </button>
-          <button className="p-2 rounded-lg hover:bg-slate-700 transition-colors duration-200">
-            <SettingsIcon />
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main Content Area */}
-      <div className="flex flex-1 relative">
-        {/* Sidebar */}
+      <div className="relative flex-1 w-full h-full overflow-hidden">
+        {/* Sidebar (overlay, responsive) */}
         <aside
-          className={`bg-gray-800 text-slate-200 p-4 transition-all duration-300 ease-in-out z-10 ${
-            isSidebarOpen ? "w-64" : "w-0 overflow-hidden"
-          }`}
+          className={`fixed top-[64px] left-0 h-full w-64 bg-gray-800 text-slate-200 p-4 transition-transform duration-300 ease-in-out z-20 
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-64"}`}
         >
           <div className="flex flex-col space-y-2">
             <h2 className="text-sm font-semibold text-slate-500 uppercase mb-2">
@@ -64,8 +41,8 @@ const HomePage = () => {
           </div>
         </aside>
 
-        {/* 3D Canvas Container */}
-        <div className="relative flex-1 bg-gray-900">
+        {/* 3D Canvas (always full screen) */}
+        <div className="absolute inset-0 w-full h-full">
           <ThreeScene onCameraRotate={setCameraRotation} />
           <Compass rotation={cameraRotation} />
         </div>
