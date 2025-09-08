@@ -1,6 +1,6 @@
 import { FaEraser, FaRegCircle } from "react-icons/fa";
-import { useToolStore } from "../store/toolStore";
-import { useSidebarStore } from "../store/sidebarStore";
+import { useDrawingToolStore } from "../store/drawingTool.store";
+import { useSidebarStore } from "../store/sidebar.store";
 import { LuRectangleHorizontal } from "react-icons/lu";
 import { MdLinearScale } from "react-icons/md";
 import type { IconType } from "react-icons";
@@ -12,7 +12,7 @@ type SidebarToolProps = {
 };
 
 const SidebarElements = ({ icon: Icon, label, tool }: SidebarToolProps) => {
-  const { activeTool, setTool } = useToolStore();
+  const { activeTool, setTool } = useDrawingToolStore();
   const isActive = activeTool === tool;
 
   return (

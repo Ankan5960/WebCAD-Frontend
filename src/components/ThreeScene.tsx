@@ -2,11 +2,11 @@ import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import { LineTool } from "../drawing-engine/LineTool";
-import { useToolStore } from "../store/toolStore";
+import { useDrawingToolStore } from "../store/drawingTool.store";
 import { DrawTool } from "../drawing-engine/DrawTool";
 import { RectangleTool } from "../drawing-engine/RectangleTool";
 import { CircleTool } from "../drawing-engine/CircleTool";
-import { useViewModeStore } from "../store/viewModeStore";
+import { useViewModeStore } from "../store/viewMode.store";
 import { EraserTool } from "../drawing-engine/EraserTool ";
 
 const ThreeScene = ({
@@ -17,7 +17,7 @@ const ThreeScene = ({
   const mountRef = useRef<HTMLDivElement>(null);
   const { mode } = useViewModeStore();
 
-  const activeTool = useToolStore((state) => state.activeTool);
+  const activeTool = useDrawingToolStore((state) => state.activeTool);
   const toolRef = useRef<DrawTool | null>(null);
 
   const sceneRef = useRef<THREE.Scene | null>(null);

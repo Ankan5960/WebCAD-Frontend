@@ -2,13 +2,14 @@ import { create } from "zustand";
 
 export type ToolType = "line" | "rectangle" | "circle" | "eraser" | null;
 
-interface ToolState {
+interface IDrawingToolState {
   activeTool: ToolType;
   setTool: (tool: ToolType) => void;
 }
 
-export const useToolStore = create<ToolState>((set) => ({
+export const useDrawingToolStore = create<IDrawingToolState>((set) => ({
   activeTool: null,
   setTool: (tool) => {
-    set({ activeTool: tool })},
+    set({ activeTool: tool });
+  },
 }));

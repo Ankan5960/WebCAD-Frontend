@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
-interface UIState {
+interface ISidebarState {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
 }
 
-export const useSidebarStore = create<UIState>((set) => ({
+export const useSidebarStore = create<ISidebarState>((set) => ({
   isSidebarOpen: true,
   toggleSidebar: () =>
     set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),

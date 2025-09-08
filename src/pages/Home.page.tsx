@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar";
 
 const HomePage = () => {
   const [cameraRotation, setCameraRotation] = useState(0);
+  
   return (
     <div className="flex flex-col h-screen font-sans bg-gray-900 text-slate-200 overflow-hidden">
       {/* Navbar */}
