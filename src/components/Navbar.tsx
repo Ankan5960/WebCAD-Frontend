@@ -6,7 +6,7 @@ import {
 import { useSidebarStore } from "../store/sidebar.store";
 import { useViewModeStore } from "../store/viewMode.store";
 
-const Navbar = () => {
+const Navbar:React.FC<any> = () => {
   const toggleSidebar = useSidebarStore((state) => state.toggleSidebar);
   const { mode, toggleMode } = useViewModeStore();
 

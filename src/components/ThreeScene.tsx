@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import { LineTool } from "../drawing-engine/LineTool";
@@ -9,7 +9,7 @@ import { CircleTool } from "../drawing-engine/CircleTool";
 import { useViewModeStore } from "../store/viewMode.store";
 import { EraserTool } from "../drawing-engine/EraserTool ";
 
-const ThreeScene = ({
+const ThreeScene: React.FC<any> = ({
   onCameraRotate,
 }: {
   onCameraRotate: (rotY: number) => void;
@@ -25,7 +25,8 @@ const ThreeScene = ({
   const orthoCamRef = useRef<THREE.OrthographicCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const planeRef = useRef<THREE.Mesh | null>(null);
-  const controlsRef = useRef<OrbitControls | null>(null);
+  const perspControlsRef = useRef<OrbitControls | null>(null);
+  const orthoControlsRef = useRef<OrbitControls | null>(null);
 
   useEffect(() => {
     const mount = mountRef.current!;
@@ -71,9 +72,39 @@ const ThreeScene = ({
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
 
+    // Inside your scene setup (after creating scene)
+    const axisLength = 1;
+
+    // X axis → red
+    const xArrow = new THREE.ArrowHelper(
+      new THREE.Vector3(1, 0, 0), // direction
+      new THREE.Vector3(0, 0, 0), // origin
+      axisLength,
+      0xff0000 // color
+    );
+    scene.add(xArrow);
+
+    // Y axis → green
+    const yArrow = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 1, 0),
+      new THREE.Vector3(0, 0, 0),
+      axisLength,
+      0x00ff00
+    );
+    scene.add(yArrow);
+
+    // Z axis → blue
+    const zArrow = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Vector3(0, 0, 0),
+      axisLength,
+      0x0000ff
+    );
+    scene.add(zArrow);
+
     // Ground plane
     const planeGeometry = new THREE.PlaneGeometry(100, 100);
-    const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x2d2d2d });
+    const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = -Math.PI / 2;
     plane.position.y = -2;
@@ -81,23 +112,36 @@ const ThreeScene = ({
     planeRef.current = plane;
 
     // Orbit Controls (only for perspective)
-    const controls = new OrbitControls(perspCam, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.screenSpacePanning = false;
-    controls.minDistance = 2;
-    controls.maxDistance = 50;
-    controls.maxPolarAngle = Math.PI / 2;
-    controlsRef.current = controls;
+    const perspControls = new OrbitControls(perspCam, renderer.domElement);
+    perspControls.enableDamping = true;
+    perspControls.dampingFactor = 0.05;
+    perspControls.screenSpacePanning = true; // ✅ allow panning
+    perspControls.enablePan = true;
+    perspControls.minDistance = 2;
+    perspControls.maxDistance = 50;
+    perspControls.maxPolarAngle = Math.PI / 2;
+    perspControlsRef.current = perspControls;
+
+    // Orthographic controls
+    const orthoControls = new OrbitControls(orthoCam, renderer.domElement);
+    orthoControls.enableRotate = false;
+    orthoControls.enableRotate = false; // keep rotation disabled for 2D
+    orthoControls.enablePan = true;
+    orthoControls.enableZoom = true;
+    orthoControlsRef.current = orthoControls;
 
     // Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
-      controls.update();
-
-      const cam = mode === "3d" ? perspCam : orthoCam;
-      renderer.render(scene, cam!);
-      onCameraRotate(cam!.rotation.y);
+      if (mode === "3d") {
+        perspControlsRef.current?.update();
+        renderer.render(scene, perspCam);
+        onCameraRotate(perspCam.rotation.y);
+      } else {
+        orthoControlsRef.current?.update();
+        renderer.render(scene, orthoCam);
+        onCameraRotate(orthoCam.rotation.y);
+      }
     };
     animate();
 
@@ -160,8 +204,11 @@ const ThreeScene = ({
   }, [activeTool, mode]);
 
   useEffect(() => {
-    if (controlsRef.current) {
-      controlsRef.current.enabled = mode === "3d";
+    if (perspControlsRef.current) {
+      perspControlsRef.current.enabled = mode === "3d";
+    }
+    if (orthoControlsRef.current) {
+      orthoControlsRef.current.enabled = mode === "2d";
     }
   }, [mode]);
 

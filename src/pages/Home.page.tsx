@@ -4,7 +4,7 @@ import ThreeScene from "../components/ThreeScene";
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
   const [cameraRotation, setCameraRotation] = useState(0);
   
   return (

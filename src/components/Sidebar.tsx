@@ -11,7 +11,7 @@ type SidebarToolProps = {
   tool: "line" | "rectangle" | "circle" | "eraser" | null;
 };
 
-const SidebarElements = ({ icon: Icon, label, tool }: SidebarToolProps) => {
+const SidebarElements: React.FC<SidebarToolProps> = ({ icon: Icon, label, tool }) => {
   const { activeTool, setTool } = useDrawingToolStore();
   const isActive = activeTool === tool;
 
