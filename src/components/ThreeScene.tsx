@@ -103,11 +103,16 @@ const ThreeScene: React.FC<any> = ({
     scene.add(zArrow);
 
     // Ground plane
-    const planeGeometry = new THREE.PlaneGeometry(100, 100);
-    const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+    const planeGeometry = new THREE.PlaneGeometry(1000, 1000);
+    const planeMaterial = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.2,
+      side: THREE.DoubleSide,
+    });
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.rotation.x = -Math.PI / 2;
-    plane.position.y = -2;
+    plane.position.y = 0;
     scene.add(plane);
     planeRef.current = plane;
 
@@ -125,7 +130,6 @@ const ThreeScene: React.FC<any> = ({
     // Orthographic controls
     const orthoControls = new OrbitControls(orthoCam, renderer.domElement);
     orthoControls.enableRotate = false;
-    orthoControls.enableRotate = false; // keep rotation disabled for 2D
     orthoControls.enablePan = true;
     orthoControls.enableZoom = true;
     orthoControlsRef.current = orthoControls;
