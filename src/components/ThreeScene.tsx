@@ -1,13 +1,19 @@
 import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
-import { LineTool } from "../drawing-engine/LineTool";
 import { useDrawingToolStore } from "../store/drawingTool.store";
 import { DrawTool } from "../drawing-engine/DrawTool";
-import { RectangleTool } from "../drawing-engine/RectangleTool";
-import { CircleTool } from "../drawing-engine/CircleTool";
 import { useViewModeStore } from "../store/viewMode.store";
-import { EraserTool } from "../drawing-engine/EraserTool ";
+import { createAxes } from "../three/scene/createAxes";
+import { createScene } from "../three/scene/createScene";
+import { createTool } from "../three/ToolFactory";
+import { createLights } from "../three/scene/createLights";
+import { createRenderer } from "../three/scene/createRenderer";
+import { createGroundPlane } from "../three/scene/createGroundPlane";
+import { createPerspectiveCamera } from "../three/camera/createPerspectiveCamera";
+import { createOrthographicCamera } from "../three/camera/createOrthographicCamera";
+import { createOrbitControls } from "../three/controls/createOrbitControls";
+import { createOrthographicControls } from "../three/controls/createOrthographicControls";
 
 const ThreeScene: React.FC<any> = ({
   onCameraRotate,
@@ -32,114 +38,40 @@ const ThreeScene: React.FC<any> = ({
     const mount = mountRef.current!;
     const width = mount.clientWidth;
     const height = mount.clientHeight;
+    const orthoSize = 20;
 
     // Scene
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1c22);
+    const scene = createScene();
     sceneRef.current = scene;
 
     // Perspective Camera (for 3D)
-    const perspCam = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    perspCam.position.set(5, 5, 5);
+    const perspCam = createPerspectiveCamera(width, height);
     perspCamRef.current = perspCam;
 
     // Orthographic Camera (for 2D top view)
-    const aspect = width / height;
-    const orthoSize = 20;
-    const orthoCam = new THREE.OrthographicCamera(
-      -orthoSize * aspect,
-      orthoSize * aspect,
-      orthoSize,
-      -orthoSize,
-      0.1,
-      1000
-    );
-    orthoCam.position.set(0, 50, 0);
-    orthoCam.up.set(0, 0, -1); // so Z axis points up in 2D
-    orthoCam.lookAt(0, 0, 0);
+    const orthoCam = createOrthographicCamera(width, height, orthoSize);
     orthoCamRef.current = orthoCam;
 
     // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(width, height);
-    renderer.shadowMap.enabled = true;
-    mount.appendChild(renderer.domElement);
+    const renderer = createRenderer(width, height, mount);
     rendererRef.current = renderer;
 
     // Lights
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    const pointLight = new THREE.PointLight(0xffffff, 0.5);
-    pointLight.position.set(5, 5, 5);
-    scene.add(pointLight);
+    createLights(scene);
 
-    // Inside your scene setup (after creating scene)
-    const axisLength = 1;
-    const headLength = 0.2;
-    const headWidth = 0.1;
-
-    // X axis → red
-    const xArrow = new THREE.ArrowHelper(
-      new THREE.Vector3(1, 0, 0), // direction
-      new THREE.Vector3(0, 0, 0), // origin
-      axisLength,
-      0xff0000,// color
-      headLength,
-      headWidth
-    );
-    scene.add(xArrow);
-
-    // Y axis → green
-    const yArrow = new THREE.ArrowHelper(
-      new THREE.Vector3(0, 1, 0),
-      new THREE.Vector3(0, 0, 0),
-      axisLength,
-      0x00ff00,
-      headLength,
-      headWidth
-    );
-    scene.add(yArrow);
-
-    // Z axis → blue
-    const zArrow = new THREE.ArrowHelper(
-      new THREE.Vector3(0, 0, 1),
-      new THREE.Vector3(0, 0, 0),
-      axisLength,
-      0x0000ff,
-      headLength,
-      headWidth
-    );
-    scene.add(zArrow);
+    // Axes Helper
+    createAxes(scene);
 
     // Ground plane
-    const planeGeometry = new THREE.PlaneGeometry(1000, 1000);
-    const planeMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.2,
-      side: THREE.DoubleSide,
-    });
-    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.rotation.x = -Math.PI / 2;
-    plane.position.y = 0;
-    scene.add(plane);
+    const plane = createGroundPlane(scene);
     planeRef.current = plane;
 
     // Orbit Controls (only for perspective)
-    const perspControls = new OrbitControls(perspCam, renderer.domElement);
-    perspControls.enableDamping = true;
-    perspControls.dampingFactor = 0.05;
-    perspControls.screenSpacePanning = true; // ✅ allow panning
-    perspControls.enablePan = true;
-    perspControls.minDistance = 2;
-    perspControls.maxDistance = 50;
-    perspControls.maxPolarAngle = Math.PI / 2;
+    const perspControls = createOrbitControls(perspCam, renderer);
     perspControlsRef.current = perspControls;
 
     // Orthographic controls
-    const orthoControls = new OrbitControls(orthoCam, renderer.domElement);
-    orthoControls.enableRotate = false;
-    orthoControls.enablePan = true;
-    orthoControls.enableZoom = true;
+    const orthoControls = createOrthographicControls(orthoCam, renderer);
     orthoControlsRef.current = orthoControls;
 
     // Animation loop
@@ -193,26 +125,15 @@ const ThreeScene: React.FC<any> = ({
 
     if (!renderer || !scene || !camera || !plane) return;
 
-    switch (activeTool?.id) {
-      case "line":
-        toolRef.current = new LineTool(renderer, camera, scene, plane);
-        toolRef.current.enable();
-        break;
-      case "rectangle":
-        toolRef.current = new RectangleTool(renderer, camera, scene, plane);
-        toolRef.current.enable();
-        break;
-      case "circle":
-        toolRef.current = new CircleTool(renderer, camera, scene, plane);
-        toolRef.current.enable();
-        break;
-      case "eraser":
-        toolRef.current = new EraserTool(renderer, camera, scene, plane);
-        toolRef.current.enable();
-        break;
-      default:
-        toolRef.current = null;
-    }
+    toolRef.current = createTool(
+      activeTool?.id,
+      renderer,
+      camera,
+      scene,
+      plane
+    );
+
+    toolRef.current?.enable();
   }, [activeTool, mode]);
 
   useEffect(() => {
