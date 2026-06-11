@@ -1,10 +1,9 @@
 import { create } from "zustand";
-
-export type ToolType = "line" | "rectangle" | "circle" | "eraser" | null;
+import { type IDrawingTool} from "../types/DrawingToolTypes";
 
 interface IDrawingToolState {
-  activeTool: ToolType;
-  setTool: (tool: ToolType) => void;
+  activeTool: IDrawingTool | null;
+  setTool: (tool: IDrawingTool | null) => void;
 }
 
 export const useDrawingToolStore = create<IDrawingToolState>((set) => ({

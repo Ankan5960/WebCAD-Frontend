@@ -185,7 +185,7 @@ const ThreeScene: React.FC<any> = ({
 
     if (!renderer || !scene || !camera || !plane) return;
 
-    switch (activeTool) {
+    switch (activeTool?.id) {
       case "line":
         toolRef.current = new LineTool(renderer, camera, scene, plane);
         toolRef.current.enable();

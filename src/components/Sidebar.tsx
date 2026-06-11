@@ -1,19 +1,17 @@
-import { FaEraser, FaRegCircle } from "react-icons/fa";
 import { useDrawingToolStore } from "../store/drawingTool.store";
+import { tools, type IDrawingTool } from "../types/DrawingToolTypes";
 import { useSidebarStore } from "../store/sidebar.store";
-import { LuRectangleHorizontal } from "react-icons/lu";
-import { MdLinearScale } from "react-icons/md";
-import type { IconType } from "react-icons";
 
 type SidebarToolProps = {
-  icon: IconType;
-  label: string;
-  tool: "line" | "rectangle" | "circle" | "eraser" | null;
+  tool: IDrawingTool;
 };
 
-const SidebarElements: React.FC<SidebarToolProps> = ({ icon: Icon, label, tool }) => {
-  const { activeTool, setTool } = useDrawingToolStore();
-  const isActive = activeTool === tool;
+const SidebarElements: React.FC<SidebarToolProps> = ({tool}) => {
+  const activeTool = useDrawingToolStore((state) => state.activeTool);
+  const setTool = useDrawingToolStore((state) => state.setTool);
+
+  const isActive = activeTool?.id === tool.id;
+  const Icon = tool.icon;
 
   return (
     <button
@@ -22,10 +20,8 @@ const SidebarElements: React.FC<SidebarToolProps> = ({ icon: Icon, label, tool }
         isActive ? "bg-blue-600 text-white" : "hover:bg-gray-700"
       }`}
     >
-      <span className="text-lg">
-        <Icon />
-      </span>
-      <span className="text-sm">{label}</span>
+      <Icon />
+      <span className="text-sm">{tool.name}</span>
     </button>
   );
 };
@@ -42,15 +38,14 @@ const Sidebar = () => {
         <h2 className="text-sm font-semibold text-slate-500 uppercase mb-2">
           Drawing-Tools
         </h2>
-        <SidebarElements icon={MdLinearScale} label="Line" tool="line" />
-        <SidebarElements
-          icon={LuRectangleHorizontal}
-          label="Rectangle"
-          tool="rectangle"
-        />
-        <SidebarElements icon={FaRegCircle} label="Circle" tool="circle" />
-        <SidebarElements icon={FaEraser} label="Eraser" tool="eraser" />
-
+        {
+          tools.map((tool) => (
+            <SidebarElements
+              key={tool.id}
+              tool={tool}
+            />
+          ))
+        }
         <div className="w-full h-px bg-slate-700 my-4" />
         <h2 className="text-sm font-semibold text-slate-500 uppercase mb-2">
           History
