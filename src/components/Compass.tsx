@@ -1,6 +1,6 @@
 import { CompassIcon } from "../assets/icons/Icons";
 
-const Compass = ({ rotation }: { rotation: number }) => (
+const Compass: React.FC<any> = ({ rotation }: { rotation: number }) => (
   <div className="absolute top-4 right-4 z-10">
     <div
       style={{ transform: `rotateZ(${-rotation}rad)` }}
